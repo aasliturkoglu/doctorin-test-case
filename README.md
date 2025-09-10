@@ -1,7 +1,7 @@
 # doctorin-test-case
 Pusula Talent Academy Test Case
 
-# 1- Manual Test için: 
+# 1- Manuel Test için: 
 
 Google Sheets Linki
 https://docs.google.com/spreadsheets/d/1OGT2aPiiDlHJ3gw5MeuZPw9IxKn5FG80/edit?usp=sharing&ouid=116899565143716256851&rtpof=true&sd=true
