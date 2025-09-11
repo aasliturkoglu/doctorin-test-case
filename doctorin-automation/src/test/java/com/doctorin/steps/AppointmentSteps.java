@@ -95,7 +95,7 @@ public class AppointmentSteps {
         WebElement kaynaklarMenu = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[p[text()='Kaynaklar']]")));
         kaynaklarMenu.click();
 
-        // 2.Personel Yönetimi butonuna tıkla
+       // 2.Personel Yönetimi butonuna tıkla
         WebElement personelYonetimi = wait.until(ExpectedConditions.elementToBeClickable(By.id("MenuItem_ResourceService_StaffManagement")));
         personelYonetimi.click();
 
@@ -166,6 +166,53 @@ public class AppointmentSteps {
 
 
         //Hastanın listede olduğunu doğrula
+
+        // 1. menu butonuna tıkla-->menuye dön
+        WebElement menuButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//button[contains(@class,'flex') and contains(@class,'items-center') and contains(@class,'justify-center')]")
+        ));
+        menuButton.click();
+
+        // 2. Hasta Kabul butonuna tıkla
+        WebDriverWait searchbarwait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        //Overlay varsa kaybolmasını bekle
+        searchbarwait.until(ExpectedConditions.invisibilityOfElementLocated(
+                By.cssSelector("div.backdrop-blur-xs")
+        ));
+
+        // 3. Search bar elementine tıkla
+        WebElement searchBar = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.id("search-input")
+        ));
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", searchBar);
+
+        searchBar.clear(); //temizle
+        searchBar.sendKeys(hastaAdi); //adını yaz
+        searchBar.sendKeys(Keys.ENTER); //enter tuşuna bas
+
+        // 4. Hastanın listede görünüp görünmediğini kontrol et
+        try {
+            //translate olmadan önce case sensitive nedeniyle görmüyordu.
+            WebElement hastaElement = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.xpath("//td[contains(@class,'e-rowcell')]//p[" +
+                            "translate(normalize-space(.), 'abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ')='"
+                            + hastaAdi.toUpperCase() + "']")
+            ));
+
+            // Element bulunduysa
+            logger.info(() -> "Hasta " + hastaAdi + " sistemde mevcut.");
+
+        } catch (TimeoutException e) { //element bulunmadıysa
+            logger.error(() -> "Hasta " + hastaAdi + " sistemde bulunamadı!");
+            throw new AssertionError("Hasta " + hastaAdi + " sistemde bulunamadı!");
+        }
+
+
+
+
+
+
     }
 
 
