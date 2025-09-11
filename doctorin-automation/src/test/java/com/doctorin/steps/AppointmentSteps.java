@@ -4,6 +4,7 @@ import io.cucumber.core.logging.Logger;
 import io.cucumber.core.logging.LoggerFactory;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
+import io.cucumber.java.en.When;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -95,7 +96,7 @@ public class AppointmentSteps {
         WebElement kaynaklarMenu = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[p[text()='Kaynaklar']]")));
         kaynaklarMenu.click();
 
-       // 2.Personel Yönetimi butonuna tıkla
+       /*// 2.Personel Yönetimi butonuna tıkla
         WebElement personelYonetimi = wait.until(ExpectedConditions.elementToBeClickable(By.id("MenuItem_ResourceService_StaffManagement")));
         personelYonetimi.click();
 
@@ -206,10 +207,68 @@ public class AppointmentSteps {
         } catch (TimeoutException e) { //element bulunmadıysa
             logger.error(() -> "Hasta " + hastaAdi + " sistemde bulunamadı!");
             throw new AssertionError("Hasta " + hastaAdi + " sistemde bulunamadı!");
-        }
+        }*/
+
+    }
+
+    @When("Şube ve departman seçilerek randevu oluşturulur")
+    public void sube_ve_departman_secilerek_randevu_olusturulur() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        // 1. menu butonuna tıkla-->menuye dön
+        WebElement menuButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//button[contains(@class,'flex') and contains(@class,'items-center') and contains(@class,'justify-center')]")
+        ));
+        menuButton.click();
+        logger.info(() -> "menu butonuna tıklandı.");
+
+        // 2. Randevu butonuna tıkla
+        WebElement randevuMenu = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[.//p[text()='Randevu']]")));
+        randevuMenu.click();
+        logger.info(() -> "randevu butonuna tıklandı.");
 
 
+        // 3. Filtrele butonuna tıkla
+        WebElement filtreleButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector("button[data-testid='filter-button']")
+        ));
+        filtreleButton.click();
+        logger.info(() -> "Filtrele butonuna tıklandı.");
 
+        // 4. Şube butonuna tıkla
+        WebElement subeDropdown = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("(//span[contains(@class,'e-ddl') and .//input[@placeholder='Seç']])[1]") // 1. dropdown = Şube
+        ));
+        subeDropdown.click();
+        logger.info(() -> "Şube butonuna tıklandı.");
+
+        // şube-->"Bağdat Cadde"yi seç
+        WebElement subeSecenek = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//ul[contains(@class,'e-list-parent')]//li[normalize-space(text())='Bağdat Cadde']")
+        ));
+        subeSecenek.click();
+        logger.info(() -> "Şuba olarak Bagdat secildi");
+
+       // 5. Departman butonuna tıkla
+        WebElement departmanDropdown = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("(//span[contains(@class,'e-ddl') and .//input[@placeholder='Seç']])[2]") // 2. dropdown = Departman
+        ));
+        departmanDropdown.click();
+        logger.info(() -> "Departman butonuna tıklandı.");
+
+        // Departman--> Çocuk hastalıkları seç
+        WebElement departmanSecenek = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//ul[contains(@id,'_options')]/li[text()='Çocuk hastalıkları']")
+        ));
+        departmanSecenek.click();
+        logger.info(() -> "Departman olarak Çocuk hastalıkları seçildi.");
+
+        // 6. "Kabul et" butonuna tıkla
+        WebElement kabulEtButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//button[@data-testid='accept-button' and text()='Kabul et']")
+        ));
+        kabulEtButton.click();
+        logger.info(() -> "'Kabul et' butonuna tıklandı.");
 
 
 
