@@ -1,5 +1,7 @@
 package com.doctorin.steps;
 
+import io.cucumber.core.logging.Logger;
+import io.cucumber.core.logging.LoggerFactory;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -9,9 +11,14 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
+import static org.junit.Assert.assertTrue;
+
 public class AppointmentSteps {
 
     WebDriver driver;
+    // Logger nesnesini tanımla
+    private static final Logger logger = LoggerFactory.getLogger(AppointmentSteps.class);
+
 
     //siteye gidilir.
     @Given("testapp.doctorin.app adresine gidilir")
@@ -82,6 +89,7 @@ public class AppointmentSteps {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
 
+
         // Doktorun listede olduğunu doğrula
         // 1. Kaynaklar butonuna tıkla.
         WebElement kaynaklarMenu = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[p[text()='Kaynaklar']]")));
@@ -92,54 +100,72 @@ public class AppointmentSteps {
         personelYonetimi.click();
 
         // 3. Filtreleme butonuna tıkla
-        //WebElement filtreButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[span[contains(@class,'e-filter')]]")));
-        //filtreButton.click();
+        By filtreBtnLocator = By.xpath("//button[span[contains(@class,'e-filter')]]");
         int attempts = 0;
-        while(attempts < 3) {
+        boolean clicked = false;
+
+        while(attempts < 3 && !clicked) {
             try {
-                WebElement filtreButton = wait.until(ExpectedConditions.elementToBeClickable(
-                        By.xpath("//button[span[contains(@class,'e-filter')]]")));
-                filtreButton.click();
-                break;
+                // Filtre butonunun clickable olmasını bekle
+                WebElement filtreButton = new WebDriverWait(driver, Duration.ofSeconds(10))
+                        .until(ExpectedConditions.elementToBeClickable(filtreBtnLocator));
+
+                // JS ile click
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", filtreButton);
+
+                // Kısa bekle, form açıldı mı kontrol et
+                wait.until(ExpectedConditions.visibilityOfElementLocated(
+                        By.xpath("//label[text()='Ad']/following-sibling::span//input")
+                ));
+
+                clicked = true; // başarılı
             } catch (Exception e) {
-                Thread.sleep(500);
                 attempts++;
+                try { Thread.sleep(500); } catch (InterruptedException ignored) {}
             }
         }
 
+        if (!clicked) {
+            throw new RuntimeException("Filtre butonuna tıklanamadı!");
+        }
+
+
 
         // 4. Açılan filtre ekranında Ad ve Soyad inputlarına doktor bilgilerini gir
+
         //ad bilgisini gir
-        WebElement adInput = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("textbox-bf002822-1fc8-4295-a313-1535457db140")));
+        WebElement adInput = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//label[text()='Ad']/following-sibling::span//input")));
+        adInput.click();
         adInput.clear();
         adInput.sendKeys(doktorAdi.split(" ")[0]); // doktorun ad bilgisi
+        //adInput.sendKeys("Gaspar");
 
 
         //soyad bilgisini gir
-        WebElement soyadInput = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("textbox-609f2ff3-bb32-4998-9c44-a8b7546873b6")));
+        WebElement soyadInput = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//label[text()='Soyad']/following-sibling::span//input")));
+        soyadInput.click();
         soyadInput.clear();
+        //soyadInput.sendKeys("Noe");
         soyadInput.sendKeys(doktorAdi.split(" ")[1]); // doktorun soyad bilgisi
+
 
         // 5. Uygula butonuna tıkla
         WebElement uygulaButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[text()='Uygula']")));
         uygulaButton.click();
 
         // 6. Doktorun listede görünüp görünmediğini kontrol et
-        WebElement doktorElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//td[@class='e-rowcell  e-leftalign' and text()='" + doktorAdi + "']")));
-
-        if (!doktorElement.isDisplayed()) {
+        try {
+            WebElement doktorElement = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.xpath("//td[@class='e-rowcell  e-leftalign' and text()='" + doktorAdi + "']")));
+            // Element bulunduysa
+            logger.info(() -> "Doktor " + doktorAdi + " sistemde mevcut.");
+        } catch (TimeoutException e) {
+            logger.error(() -> "Doktor " + doktorAdi + " sistemde bulunamadı!");
             throw new AssertionError("Doktor " + doktorAdi + " sistemde bulunamadı!");
         }
 
 
-
-        // Hastanın listede olduğunu doğrula
-       /* WebElement hastaElement = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//table//td[contains(text(),'" + hastaAdi + "')]")
-        ));
-        if (!hastaElement.isDisplayed()) {
-            throw new AssertionError("Hasta " + hastaAdi + " sistemde bulunamadı!");
-        }*/
+        //Hastanın listede olduğunu doğrula
     }
 
 
