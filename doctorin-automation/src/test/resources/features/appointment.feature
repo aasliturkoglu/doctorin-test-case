@@ -5,8 +5,8 @@ Feature: Randevu yönetimi - Nişantaşı Klinik
     And Kullanıcı klinik bilgisini "Nişantaşı Klinik" olarak girer
     And "Test" ve "Test123." ile giriş yapılır
     And Doktor "Gaspar Noe" ve Hasta "Wes Anderson" sistemde mevcut
-    When Şube ve departman seçilerek randevu oluşturulur
-    And Randevu adımları tamamlanarak randevu "Tamamlandı" durumuna getirilir
-    Then Randevu durumu "Tamamlandı" olarak doğrulanır
-    When Oluşturulan randevu silinir
+    When Şube ve departman ve Doktor "Gaspar Noe" seçilerek randevu sayfası açılır
+    And Randevu adımları Hasta "Wes Anderson" seçilerek tamamlanır randevu "Tamamlandı" durumuna getirilir
+    Then Doktor "Gaspar Noe" ile randevu durumu "Tamamlandı" olarak doğrulanır
+    When Randevu adımları Hasta "Wes Anderson" seçilerek tamamlanır ve randevu silinir
     Then Randevunun silindiği doğrulanır
